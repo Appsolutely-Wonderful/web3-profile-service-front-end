@@ -1,62 +1,109 @@
+import React, { useState, useEffect } from "react";
 import Head from 'next/head'
+import Wallet from '../modules/wallet';
+import NftInputForm from '../modules/nft_form';
+import {WhoAmI, CONTRACT_ADDRESS} from "../utilities/whoami";
+import NftViewer from "../modules/nft_viewer";
+import Loader from "../modules/loader";
 
 export default function Home() {
+  // Constants
+  const TWITTER_HANDLE = '_buildspace';
+  const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
+
+  const [currentAccount, setCurrentAccount] = useState('');
+  const [domain, setDomain] = useState('');
+  const [image, setImage] = useState('');
+  const [network, setNetwork] = useState('');
+  const [mints, setMints] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  let resetInputField = () => {
+    setDomain('');
+    setImage('');
+  }
+
+  let mint = async () => {
+    setLoading(true);
+    let success = await WhoAmI.mint(currentAccount, domain, image);
+    if (success) {
+      resetInputField();
+      setTimeout(() => {
+        loadImages();
+      }, 2000);
+    }
+    setLoading(false);
+  }
+
+  let updateImage = async () => {
+    setLoading(true);
+    await WhoAmI.updateImage(currentAccount, domain, image);
+    resetInputField();
+    setTimeout(() => {
+      loadImages();
+    }, 2000);
+    setLoading(false);
+  }
+
+  let loadImages = async () => {
+    console.log("load images called");
+      if (network === 'Polygon Mumbai Testnet') {
+        let data = await WhoAmI.fetchMints();
+        setMints(data);
+      }
+  }
+
+  let editNft = (domain, image) => {
+    setDomain(domain);
+    setImage(image);
+  }
+
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Who Am I</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
+
+        <Loader loading={loading} />
+
         <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+        😎 WhoAmI Profile Service
         </h1>
 
         <p className="description">
-          Get started by editing <code>pages/index.js</code>
+          Your one and only Image ID
         </p>
 
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <div className="connect-wallet-container">
+          <img src="https://media.giphy.com/media/3o7TKqrE93zMjfu4QU/giphy.gif" alt="Profile gif" />
         </div>
+        
+
+        <Wallet onWalletConnected={setCurrentAccount} onNetworkChanged={setNetwork} />
+        {currentAccount != '' && (<NftInputForm network={network} domain={domain} setDomain={setDomain} image={image} setImage={setImage} mint={mint} updateImage={updateImage}/>)}
+        
+        <NftViewer account={currentAccount} mints={mints} edit={editNft} refresh={loadImages} contract={CONTRACT_ADDRESS}/>
       </main>
 
       <footer>
+        <p>
         <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+          href="https://github.com/Appsolutely-Wonderful/"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className="logo" />
-        </a>
+          <img alt="Twitter Logo" className="github-logo" src="/github.svg" />
+          Created by Appsolutely Wonderful
+        </a>  
+        <a
+						href={TWITTER_LINK}
+						target="_blank"
+						rel="noreferrer"
+					><img alt="Twitter Logo" className="twitter-logo" src="/twitter-logo.svg" />{`Built with @${TWITTER_HANDLE}`}</a>
+        </p>
       </footer>
 
       <style jsx>{`
@@ -70,7 +117,7 @@ export default function Home() {
         }
 
         main {
-          padding: 5rem 0;
+          padding: 4rem 0;
           flex: 1;
           display: flex;
           flex-direction: column;
@@ -187,6 +234,16 @@ export default function Home() {
             width: 100%;
             flex-direction: column;
           }
+        }
+
+        .twitter-logo {
+          width: 35px;
+          height: 35px;
+        }
+
+        .github-logo {
+          width: 35px;
+          height: 35px;
         }
       `}</style>
 
