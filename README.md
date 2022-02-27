@@ -1,1 +1,4 @@
-This is a starter template for [Learn Next.js](https://nextjs.org/learn).
+# Web3 Front-End
+
+An app for registering profile pictures as NFT's on the polygon
+blockchain
