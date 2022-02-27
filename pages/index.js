@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Head from 'next/head'
 import Wallet from '../modules/wallet';
 import NftInputForm from '../modules/nft_form';
@@ -45,9 +45,9 @@ export default function Home() {
     setLoading(false);
   }
 
-  let loadImages = async () => {
-    console.log("load images called");
-      if (network === 'Polygon Mumbai Testnet') {
+  let loadImages = async (force=false) => {
+    console.log("load images called on network ", network);
+      if (force || network === 'Polygon Mumbai Testnet') {
         let data = await WhoAmI.fetchMints();
         setMints(data);
       }
@@ -56,6 +56,14 @@ export default function Home() {
   let editNft = (domain, image) => {
     setDomain(domain);
     setImage(image);
+  }
+
+  let onNetworkUpdated = (network) => {
+    console.log("Updating network to", network)
+    setNetwork(network);
+    setTimeout(() => {
+      loadImages(true);
+    })
   }
 
   return (
@@ -82,7 +90,7 @@ export default function Home() {
         </div>
         
 
-        <Wallet onWalletConnected={setCurrentAccount} onNetworkChanged={setNetwork} />
+        <Wallet onWalletConnected={setCurrentAccount} onNetworkChanged={onNetworkUpdated} />
         {currentAccount != '' && (<NftInputForm network={network} domain={domain} setDomain={setDomain} image={image} setImage={setImage} mint={mint} updateImage={updateImage}/>)}
         
         <NftViewer account={currentAccount} mints={mints} edit={editNft} refresh={loadImages} contract={CONTRACT_ADDRESS}/>
