@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Component } from "react";
 
 class NftInputForm extends Component {
@@ -27,10 +28,11 @@ class NftInputForm extends Component {
 						<p className='tld'>.whoami</p>
 					</div>
 
+					<p>Upload a file to swarm <Link href="/swarm"><a>here</a></Link> </p>
 					<input
 						type="text"
 						value={this.props.image}
-						placeholder='Define your image URL'
+						placeholder='Enter Swarm File Hash'
 						onChange={e => this.props.setImage(e.target.value)}
 					/>
 

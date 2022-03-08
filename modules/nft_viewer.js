@@ -22,6 +22,10 @@ class NftViewer extends Component {
                     <p className="subtitle" style={{'textAlign': 'center'}}> Recently minted domains!</p>
                     <div className="mint-list">
                         { mints.map((mint, index) => {
+                            let source_url = mint.image;
+                            if (!mint.image.startsWith('http')) {
+                                source_url = "http://swarm.appsolutelywonderful.com:1633/bzz/" + mint.image
+                            }
                             return (
                                 <div className="mint-item" key={index}>
                                     <div className='mint-row'>
@@ -29,7 +33,7 @@ class NftViewer extends Component {
                                         <a className="link" href={`https://testnets.opensea.io/assets/mumbai/${CONTRACT_ADDRESS}/${mint.id}`} target="_blank" rel="noopener noreferrer">
                                             <p className="underlined">{' '}{mint.name}{'.whoami'}{' '}</p>
                                         </a>
-                                        <img className="nft-image" src={mint.image} />
+                                        <img className="nft-image" src={source_url} />
                                         </div>
                                         {/* If mint.owner is currentAccount, add an "edit" button*/}
                                         { mint.owner.toLowerCase() === currentAccount.toLowerCase() ?
